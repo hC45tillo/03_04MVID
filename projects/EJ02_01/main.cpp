@@ -1,3 +1,5 @@
+//EJ02.01; - Pintar dos triángulos, uno al lado del otro(sin formar un quad, de esta forma " /\/\ "), usando glDrawArrays, añadiendo más vértices a los datos(usando un solo VBO).
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
