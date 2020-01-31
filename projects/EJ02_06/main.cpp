@@ -1,20 +1,11 @@
-//EJ02.06; - Pintar el mismo hexágono, pero generando los vértices de manera procedural (usando algún tipo de algoritmo), mediante coordenadas polares.
-//EJ02.05; - Pintar un hexágono centrado en la pantalla, usando un VAO, VBO y EBO, generando los vértices de la manera habitual a mano.
-
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include "engine/input.hpp"
 #include "engine/window.hpp"
-
 #include <iostream>
 
-void handleInput() {
-	std::vector<std::pair<int, int>> keys = Input::instance()->getKeys();
-	for (auto& key : keys) {
-		std::cout << key.first << " - " << key.second << std::endl;
-	}
-}
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+void handleInput() {}
 
 bool checkShader(uint32_t shader) {
 	int success;
@@ -42,14 +33,15 @@ bool checkProgram(uint32_t program) {
 
 uint32_t createProgram() {
 	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location=0) in vec3 aPos;\n"
+		"layout (location = 0) in vec3 aPos;\n"
 		"void main() {\n"
-		"    gl_Position = vec4(aPos, 1.0);\n"
+		"	gl_Position = vec4(aPos, 1.0);\n"
 		"}\0";
+
 	const char* fragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragColor;\n"
 		"void main() {\n"
-		"    FragColor = vec4(0.03, 0.41, 0.04, 1.0);\n"
+		"	FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
 		"}\0";
 
 	const uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -74,32 +66,35 @@ uint32_t createProgram() {
 	return program;
 }
 
-uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO, float radious, float p1x, float p1y, float p2x, float p2y) {
-
-	float vertices[] = {
-		0.0f, 0.0f, 0.0f,
-		 p1x,  p1y, 0.0f,
-		 p2x,  p2y, 0.0f,
+uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO) {
+	
+	int sides = 6;
+	float polygon[7 * 3] = {};
+	int idx = 3;
+	for (int i = 0; i < 6; i++) {
+		polygon[idx] = 1 * (float)cos(i * 60 * M_PI / 180.f);
+		idx++;
+		polygon[idx] = 1 * (float)sin(i * 60 * M_PI / 180.f);
+		idx++;
+		polygon[idx] = 0.f;
+		idx++;
+	}
+	
+	uint32_t indices[6 * 3] = {	};
+	idx = 0;
+	for (int i = 0; i < sides; i++) {
+		indices[idx] = 0;
+		idx++;
+		indices[idx] = i + 1;
+		idx++;
+		if (i < sides - 1) {
+			indices[idx] = i + 2;
+		}
+		else {
+			indices[idx] = 1;
+		}
+		idx++;
 	};
-	//float vertices[] = {
-	//	0.0f, 0.0f, 0.0f, //0							0x= radio * 0; y= radio * 0
-	//	radious, 0.0f, 0.0f, //1						1x= radio * 1; y = radio * 0
-	//	radious / 2, radious, 0.0f, //2					2x= radio * 1/2; y = radio * 1
-	//	//radious * -1, 0.0f, 0.0f, //3					3x= radio * -1; y = radio * 0
-	//	//radious /2 * -1, radious, 0.0f, //4				4x= radio - 1/2; y = radio * 1
-	//	//radious / 2 * -1, radious * -1, 0.0f, //5		5x= radio * -1/2; y = radio * -1
-	//	//radious / 2, radious * -1, 0.0f, //6				6x= radio * 1; y = radio * -1
-	//};
-	uint32_t indices[] = {
-		0,1,2,
-		/*0,2,4,
-		0,4,3,
-		0,3,5,
-		0,5,6,
-		0,6,1*/
-	};
-
-
 
 	uint32_t VAO;
 	glGenVertexArrays(1, &VAO);
@@ -109,7 +104,7 @@ uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO, float radious, float p1x
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(polygon), polygon, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -119,16 +114,11 @@ uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO, float radious, float p1x
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindVertexArray(0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 	return VAO;
 }
 
-
 void render(uint32_t VAO, uint32_t program) {
-	//glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(program);
 	glBindVertexArray(VAO);
@@ -140,59 +130,16 @@ int main(int, char* []) {
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	uint32_t VBO, EBO, VAO;
-	//const uint32_t VAO = createVertexData(&VBO, &EBO, 0.5f);
+	uint32_t VBO, EBO;
+	const uint32_t VAO = createVertexData(&VBO, &EBO);
 	const uint32_t program = createProgram();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	int contP1 = 0;
-	int contP2 = 1;
-	float p1x = 0.0f;
-	float p1y = 0.0f;
-	float p2x = 0.0f; 
-	float p2y = 0.0f;
-	float length1 = 1.0f;
-	float length2 = 1.0f;
-	float y1Const = 1.0f;
-	float y2Const = 1.0f;
-	float radious = 1.0f;
-	while (window->alive()) {
-		
-		switch (contP1) {
-		case 0:
-			p1x = radious * length1;
-			p1y = 0;
-			contP1 = 1;
-			break;
-		case 1:
-		case 2:
-			p1x = radious * (length1 / 2);
-			p1y = radious * y1Const;
-			y1Const = contP1 == 2 ? y1Const * -1: y1Const;
-			contP1 = contP1 == 2 ? 0 : 2;
-			length1 = contP1 == 2.00f ? length1 * -1.00f : length1;
-			break;
-		}
 
-		switch (contP2) {
-		case 0:
-			p2x = radious * length2;
-			p2y = 0;
-			contP2 = 1;
-			break;
-		case 1:
-		case 2:
-			p2x = radious * (length2 / 2);
-			p2y = radious * y2Const;
-			y2Const = contP2 == 2 ? y2Const * -1 : y2Const;
-			contP2 = contP2 == 2 ? 0 : 2;
-			length2 = contP2 == 2.00f ? length2 * -1.00f : length2;
-			break;
-		}
-		VAO = createVertexData(&VBO, &EBO, radious, p1x, p1y, p2x, p2y);
+	while (window->alive()) {
 		handleInput();
 		render(VAO, program);
 		window->frame();
