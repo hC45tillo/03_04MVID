@@ -5,6 +5,7 @@ layout (location=1) in vec3 aColor;
 
 out vec3 myColor;
 uniform vec3 moveObj;
+
 void main() {
     myColor = aColor;
     gl_Position = vec4(aPos + moveObj, 1.0);
