@@ -1,29 +1,20 @@
-//EJ03.02 - Cambiar el color del triángulo con el paso del tiempo, usando un uniform para ello y la función glfwGetTime(), que mide el tiempo que ha transcurrido desde que se inició GLFW.
-
 #include <glad/glad.h>
 
-#include "engine/input.hpp"
 #include "engine/window.hpp"
 #include "engine/shader.hpp"
 
-#include <iostream>
 #include <GLFW/glfw3.h>
 
-void handleInput() {
-	std::vector<std::pair<int, int>> keys = Input::instance()->getKeys();
-	for (auto& key : keys) {
-		std::cout << key.first << " - " << key.second << std::endl;
-	}
-}
+void handleInput() {}
 
 uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO) {
 	float vertices[] = {
-		0.5f, -0.5f, 0.0f,      1.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
-		0.0f, 0.5f, 0.0f,       1.0f, 0.0f, 0.0f
+		 0.5f, -0.5f, 0.0f,      1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,
+		 0.0f,  0.5f, 0.0f,      0.0f, 0.0f, 1.0f
 	};
 
-	uint32_t indices[] = {
+	uint32_t indices[]{
 		0, 2, 1
 	};
 
@@ -55,24 +46,23 @@ uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO) {
 	return VAO;
 }
 
-
 void render(uint32_t VAO, const Shader& shader) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	shader.use();
+	//shader.set("addColor", 0.2f, 0.f, 0.f);
 	int time = glfwGetTime();
 	if (time % 2 == 0) {
-		shader.set("addColor", 1.0f/(time/2), 1.0f/time, 1.0f/(time*2));
+		shader.set("addColor", 1.0f / (time / 2), 1.0f / time, 1.0f / (time * 2));
 	}
-	
-
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 int main(int, char* []) {
 	Window* window = Window::instance();
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
 
 	uint32_t VBO, EBO;
 	const uint32_t VAO = createVertexData(&VBO, &EBO);
@@ -95,5 +85,3 @@ int main(int, char* []) {
 
 	return 0;
 }
-
-

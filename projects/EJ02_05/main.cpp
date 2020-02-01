@@ -1,19 +1,8 @@
-//EJ02.05; - Pintar un hexágono centrado en la pantalla, usando un VAO, VBO y EBO, generando los vértices de la manera habitual a mano.
-
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include "engine/input.hpp"
 #include "engine/window.hpp"
-
 #include <iostream>
 
-void handleInput() {
-	std::vector<std::pair<int, int>> keys = Input::instance()->getKeys();
-	for (auto& key : keys) {
-		std::cout << key.first << " - " << key.second << std::endl;
-	}
-}
+void handleInput() {}
 
 bool checkShader(uint32_t shader) {
 	int success;
@@ -41,14 +30,15 @@ bool checkProgram(uint32_t program) {
 
 uint32_t createProgram() {
 	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location=0) in vec3 aPos;\n"
+		"layout (location = 0) in vec3 aPos;\n"
 		"void main() {\n"
-		"    gl_Position = vec4(aPos, 1.0);\n"
+		"	gl_Position = vec4(aPos, 1.0);\n"
 		"}\0";
+
 	const char* fragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragColor;\n"
 		"void main() {\n"
-		"    FragColor = vec4(0.03, 0.41, 0.04, 1.0);\n"
+		"	FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
 		"}\0";
 
 	const uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -93,8 +83,6 @@ uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO) {
 		0,6,1
 	};
 
-
-
 	uint32_t VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, VBO);
@@ -113,13 +101,8 @@ uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindVertexArray(0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 	return VAO;
 }
-
 
 void render(uint32_t VAO, uint32_t program) {
 	glClear(GL_COLOR_BUFFER_BIT);

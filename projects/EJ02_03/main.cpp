@@ -1,19 +1,8 @@
-//EJ02.03; - Pintar los dos mismos triángulos usando un solo VAO, VBO y un EBO.
-
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include "engine/input.hpp"
 #include "engine/window.hpp"
-
 #include <iostream>
 
-void handleInput() {
-	std::vector<std::pair<int, int>> keys = Input::instance()->getKeys();
-	for (auto& key : keys) {
-		std::cout << key.first << " - " << key.second << std::endl;
-	}
-}
+void handleInput() {}
 
 bool checkShader(uint32_t shader) {
 	int success;
@@ -41,14 +30,15 @@ bool checkProgram(uint32_t program) {
 
 uint32_t createProgram() {
 	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location=0) in vec3 aPos;\n"
+		"layout (location = 0) in vec3 aPos;\n"
 		"void main() {\n"
-		"    gl_Position = vec4(aPos, 1.0);\n"
+		"	gl_Position = vec4(aPos, 1.0);\n"
 		"}\0";
+
 	const char* fragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragColor;\n"
 		"void main() {\n"
-		"    FragColor = vec4(0.03, 0.41, 0.04, 1.0);\n"
+		"	FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
 		"}\0";
 
 	const uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -75,18 +65,19 @@ uint32_t createProgram() {
 
 uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO) {
 	float vertices[] = {
-		-0.5f, 0.5f, 0.0f, // 0top
-		-0.9f, -0.5f, 0.0f, // 1bottom left
-		-0.1f, -0.5f, 0.0f, // 2bottom right
-
-		0.5f, 0.5f, 0.0f, // 3top
-		0.1f, -0.5f, 0.0f, // 5bottom left
-		0.9f, -0.5f, 0.0f, // 4bottom right
-
+		//Triangle 1
+		0.9f,	-0.5f,	0.0f,
+		0.5f,	 0.5f,	0.0f,
+		0.1f,	-0.5f,	0.0f,
+		//Triangle 2
+	   -0.1f,	-0.5f,	0.0f,
+	   -0.5f,	 0.5f,	0.0f,
+	   -0.9f,	-0.5f,	0.0f,
 	};
 
 	uint32_t indices[] = {
-		0,1,2,3,4,5
+		0, 1, 2,
+		3, 4, 5
 	};
 
 	uint32_t VAO;
@@ -107,13 +98,8 @@ uint32_t createVertexData(uint32_t* VBO, uint32_t* EBO) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindVertexArray(0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 	return VAO;
 }
-
 
 void render(uint32_t VAO, uint32_t program) {
 	glClear(GL_COLOR_BUFFER_BIT);
