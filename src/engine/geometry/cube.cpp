@@ -54,7 +54,59 @@ Cube::Cube(float size) : _size(size) {
                            half, half, -half,
                           -half, half, -half};
 
-    float uvs[] = { 0.25f, 0.5f,   //front
+
+	float uvs[] = { 0.0f, 0.0f,   //front
+					1.0f, 0.0f,
+					1.0f, 1.0f,
+
+					0.0f, 0.0f,
+					1.0f, 1.0f,
+					0.0f, 1.0f,
+
+					0.0f, 0.0f,   //right
+					1.0f, 0.0f,
+					1.0f, 1.0f,
+
+					0.0f, 0.0f,
+					1.0f, 1.0f,
+					0.0f, 1.0f,
+					
+					0.0f, 0.0f,   //back
+					1.0f, 0.0f,
+					1.0f, 1.0f,
+
+					0.0f, 0.0f,
+					1.0f, 1.0f,
+					0.0f, 1.0f,
+
+					0.0f, 0.0f,   //left
+					1.0f, 0.0f,
+					1.0f, 1.0f,
+
+					0.0f, 0.0f,
+					1.0f, 1.0f,
+					0.0f, 1.0f,
+
+					0.0f, 0.0f,   //bottom
+					1.0f, 0.0f,
+					1.0f, 1.0f,
+
+					0.0f, 0.0f,
+					1.0f, 1.0f,
+					0.0f, 1.0f,
+
+					0.0f, 0.0f,   //top
+					1.0f, 0.0f,
+					1.0f, 1.0f,
+
+					0.0f, 0.0f,
+					1.0f, 1.0f,
+					0.0f, 1.0f,
+
+					};
+
+// Ej05_02
+/*    float uvs[] = { 0.25f, 0.5f,   //front
                     0.5f, 0.5f,
                     0.5f, 0.75f,
 
@@ -101,7 +153,7 @@ Cube::Cube(float size) : _size(size) {
                     0.25f, 0.75f,
                     0.5f, 1.0f,
                     0.25f, 1.0f};
-
+*/
     float normals[] = { 0.0f, 0.0f, 1.0f,  //front
                         0.0f, 0.0f, 1.0f,
                         0.0f, 0.0f, 1.0f,
