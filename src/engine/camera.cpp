@@ -12,9 +12,8 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
     updateCameraVectors();
 }
 
-
 glm::mat4 Camera::getViewMatrix() const {
-    return glm::lookAt(_position, _position + _front, _up);
+	return glm::lookAt(_position, _position + _front, _up);
 }
 
 float Camera::getFOV() const {
@@ -46,6 +45,19 @@ void Camera::handleKeyboard(Movement direction, float dt) {
         case Movement::Right: _position += _right * velocity; break;
         default:;
     }
+}
+
+void Camera::handleKeyboardFPS(Movement direction, float dt) {
+	const float velocity = k_Speed * dt;
+
+	switch (direction) {
+	case Movement::Forward:
+		_position.z += _front.z * velocity; break;
+	case Movement::Backward: _position.z -= _front.z * velocity; break;
+	case Movement::Left: _position -= _right * velocity; break;
+	case Movement::Right: _position += _right * velocity; break;
+	default:;
+	}
 }
 
 void Camera::handleMouseMovement(float xoffset, float yoffset, bool constrainPitch) {
