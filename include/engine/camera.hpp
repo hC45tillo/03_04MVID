@@ -21,6 +21,7 @@ class Camera {
         Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
         glm::mat4 getViewMatrix() const;
+		glm::mat4 personalGetViewMatrix() const;
 		float getFOV() const;
         glm::vec3 getPosition() const;
 
