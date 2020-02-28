@@ -35,3 +35,8 @@ Quad::Quad(float size) : _size(size) {
 
     uploadData(positions, uvs, normals, indices);
 }
+float position = 0.0f;
+float speed = 10.0f;
+void update(const float dt) {
+	position += speed * dt;
+}

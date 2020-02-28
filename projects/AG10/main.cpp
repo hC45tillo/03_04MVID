@@ -93,7 +93,7 @@ void render(const Model& object, const Shader& s_phong) {
     glm::mat4 model = glm::mat4(1.0f);
     //model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
     //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+    model = glm::scale(model, glm::vec3(1.01f, 1.01f, 1.01f));
     s_phong.set("model", model);
     s_phong.set("view", view);
     s_phong.set("proj", proj);
@@ -110,7 +110,7 @@ int main(int, char* []) {
     glClearColor(0.0f, 0.3f, 0.6f, 1.0f);
 
     const Shader s_phong("../projects/AG10/simple.vs", "../projects/AG10/simple.fs");
-    const Model object("../assets/models/formula 1/Formula 1 mesh.obj");
+    const Model object("../assets/models/xwing18/source/xwing_tiefighter_sketchfab.obj");
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);

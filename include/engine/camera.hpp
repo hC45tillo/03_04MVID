@@ -15,6 +15,8 @@ class Camera {
             Backward = 1,
             Left = 2,
             Right = 3,
+			Up = 4,
+			Down = 5
         };
 
         Camera(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = k_Yaw, float pitch = k_Pitch);

@@ -23,6 +23,8 @@ set(ENGINE_SRC_FILES
     ${CMAKE_CURRENT_LIST_DIR}/src/engine/shader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/engine/texture.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/engine/window.cpp
+	${CMAKE_CURRENT_LIST_DIR}/src/engine/player.cpp
+	${CMAKE_CURRENT_LIST_DIR}/src/engine/lavaBall.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/engine/geometry/cube.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/engine/geometry/geometry.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/engine/geometry/quad.cpp
@@ -37,6 +39,9 @@ set(ENGINE_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/include/engine/shader.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/engine/texture.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/engine/window.hpp
+	${CMAKE_CURRENT_LIST_DIR}/include/engine/player.hpp
+	${CMAKE_CURRENT_LIST_DIR}/include/engine/gameObject.hpp
+	${CMAKE_CURRENT_LIST_DIR}/include/engine/lavaBall.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/engine/geometry/cube.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/engine/geometry/geometry.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/engine/geometry/quad.hpp
