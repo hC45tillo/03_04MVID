@@ -15,6 +15,7 @@ class Player {
 		float speed = 4.5f;
 
 		Player() = default;
+		Player(glm::vec3 position);
 		virtual ~Player();
 		void update(float dt);
 		void damage();

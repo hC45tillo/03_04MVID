@@ -14,9 +14,10 @@
 #include <engine\model.hpp>
 #include <engine\player.hpp>
 #include <engine\lavaBall.hpp>
+#include <engine\enemy.hpp>
 
-Camera camera(glm::vec3(0.0f, 0.0f, 30.0f));
-glm::vec3 lightPos(1.2f, 3.0f, 10.0f);
+Camera camera(glm::vec3(0.0f, 0.0f, 50.0f));
+glm::vec3 lightPos(1.2f, 3.0f, 50.0f);
 
 glm::vec3 playerPos(0.0f, 0.0f, 3.0f);
 
@@ -29,19 +30,8 @@ float lastFrame = 0.0f;
 float lastX, lastY;
 bool firstMouse = true;
 
-glm::vec3 _front, _right;
-glm::vec3 _up, _worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-/*void updatePlayerVectors() {
-	glm::vec3 front;
-	front.x = cos(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
-	front.y = sin(glm::radians(0.0f));
-	front.z = sin(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
-	_front = glm::normalize(front);
-
-	_right = glm::normalize(glm::cross(_front, _worldUp));
-	_up = glm::normalize(glm::cross(_right, _front));
-}*/
+Enemy sinEnemies[18];
+Enemy deathstars[6];
 
 void handleInput(float dt, Player& xwing) {
 	Input* input = Input::instance();
@@ -51,43 +41,24 @@ void handleInput(float dt, Player& xwing) {
 	if (input->isKeyPressed(GLFW_KEY_W)) {
 		//camera.handleKeyboard(Camera::Movement::Up, dt);
 		//playerPos.y += dt * 3.5f;
+
 		xwing.up(dt);
+		lightPos.y += dt * 4.5f;
 	}
 	if (input->isKeyPressed(GLFW_KEY_S)) {
 		//camera.handleKeyboard(Camera::Movement::Down, dt);
 		xwing.down(dt);
+		lightPos.y -= dt * 4.5f;
 	}
 	if (input->isKeyPressed(GLFW_KEY_A)) {
 		xwing.left(dt);
-		
+		lightPos.x -= dt * 4.5f;
 	}
 	if (input->isKeyPressed(GLFW_KEY_D)) {
 		xwing.right(dt);
+		lightPos.x += dt * 4.5f;
 	}
 }
-
-/*void handleInput(float dt) {
-	Input* input = Input::instance();
-	//updatePlayerVectors();
-	//const float velocity = 2.5f * dt;
-	if (input->isKeyPressed(GLFW_KEY_W) || input->isKeyPressed(GLFW_KEY_UP)) {
-		camera.handleKeyboard(Camera::Movement::Up, dt);
-		//lightPos = camera.getPosition();
-		//playerPos += _up * velocity;
-	}
-	if (input->isKeyPressed(GLFW_KEY_S) || input->isKeyPressed(GLFW_KEY_DOWN)) {
-		camera.handleKeyboard(Camera::Movement::Down, dt);
-		//playerPos -= _up * velocity;
-	}
-	if (input->isKeyPressed(GLFW_KEY_A) || input->isKeyPressed(GLFW_KEY_LEFT)) {
-		camera.handleKeyboard(Camera::Movement::Left, dt);
-		//playerPos -= _right * velocity;
-	}
-	if (input->isKeyPressed(GLFW_KEY_D) || input->isKeyPressed(GLFW_KEY_RIGHT)) {
-		camera.handleKeyboard(Camera::Movement::Right, dt);
-		//playerPos += _right * velocity;
-	}
-}*/
 
 void onKeyPress(int key, int action) {
 	if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
@@ -147,55 +118,7 @@ std::pair<uint32_t, uint32_t> createFBO() {
 	return std::make_pair(fbo, depthMap);
 }
 
-void renderScene(const Shader& shader, const Model& xwing, const Geometry& quad, const Geometry& cube, const Geometry& sphere,
-	const Texture& t_albedo, const Texture& t_specular, const Texture& floor) {
-	floor.use(shader, "material.diffuse", 0);
-	floor.use(shader, "material.specular", 1);
-
-	glm::mat4 model = glm::mat4(1.0);
-	model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
-	//model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-	shader.set("model", model);
-	glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
-	shader.set("normalMat", normalMat);
-	quad.render();
-
-	t_albedo.use(shader, "material.diffuse", 0);
-	t_specular.use(shader, "material.specular", 1);
-
-	model = glm::mat4(1.0f);
-	//model = glm::translate(model, playerPos);
-	model = glm::translate(model, playerPos);
-	model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(.5f, .5f, .5f));
-	shader.set("model", model);
-	normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
-	shader.set("normalMat", normalMat);
-	xwing.render(shader);
-	
-	/*model = glm::mat4(1.0);
-	shader.set("model", model);
-	normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
-	shader.set("normalMat", normalMat);
-	cube.render();*/
-
-	/*model = glm::mat4(1.0);
-	model = glm::translate(model, glm::vec3(4.0f, 4.0f, 3.0f));
-	shader.set("model", model);
-	normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
-	shader.set("normalMat", normalMat);
-	sphere.render();*/
-
-	/*model = glm::mat4(1.0);
-	model = glm::translate(model, glm::vec3(-6.0f, -2.0f, 3.0f));
-	shader.set("model", model);
-	normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
-	shader.set("normalMat", normalMat);
-	sphere.render();*/
-}
-
-void renderScene(Player xwing, LavaBall ball, const Shader& shader, const Geometry& land, const Model& player, const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player) {
+void renderScene(Player xwing,const Model& enemyAMod, const Geometry& ball, const Shader& shader, const Geometry& land, const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player, const Texture& t_ball) {
 	t_landA.use(shader, "material.diffuse", 0);
 	t_landA.use(shader, "material.specular", 1);
 
@@ -225,6 +148,20 @@ void renderScene(Player xwing, LavaBall ball, const Shader& shader, const Geomet
 	land.render();
 	//End Land Rendering
 
+	t_ball.use(shader, "material.diffuse", 0);
+	t_ball.use(shader, "material.specular", 1);
+	
+	for (int i = 0; i < std::size(deathstars); i++) {
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, deathstars[i].position);
+		model = glm::rotate(model, static_cast<float>(glfwGetTime()) * glm::radians(20.0f), deathstars[i].position);
+		shader.set("model", model);
+		normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
+		shader.set("normalMat", normalMat);
+		ball.render();
+	}
+	
+
 	//Player Rendering
 	t_player.use(shader, "material.diffuse", 0);
 	t_player.use(shader, "material.specular", 1);
@@ -236,13 +173,29 @@ void renderScene(Player xwing, LavaBall ball, const Shader& shader, const Geomet
 	shader.set("model", model);
 	normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
 	shader.set("normalMat", normalMat);
-	player.render(shader);
+	xwing.model.render(shader);
 	//End player Rendering
+
+	//Enemy Rendering
+	for (int i = 0; i < std::size(sinEnemies); i++) {
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, sinEnemies[i].position);
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(.1f, .1f, .1f));
+		shader.set("model", model);
+		normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
+		shader.set("normalMat", normalMat);
+		enemyAMod.render(shader);
+	}
+	
+	//End Enemy Rendering
+	
+
 
 }
 
-void render(Player xwing, LavaBall ball, const Geometry& land, const Model& player, const Shader& s_phong, const Shader& s_depth, const Shader& s_debug, const Shader& s_light,
-	const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player, const uint32_t fbo, const uint32_t fbo_texture) {
+void render(Player xwing, const Model& enemyA, const Geometry& ball, const Geometry& land, const Shader& s_phong, const Shader& s_depth, const Shader& s_debug, const Shader& s_light,
+	const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player, const Texture& t_ball, const uint32_t fbo, const uint32_t fbo_texture) {
 	//FIRST PASS
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, k_shadow_width, k_shadow_height);
@@ -256,7 +209,7 @@ void render(Player xwing, LavaBall ball, const Geometry& land, const Model& play
 	s_depth.use();
 	s_depth.set("lightSpaceMatrix", lightSpaceMatrix);
 	//glCullFace(GL_FRONT);
-	renderScene(xwing, ball, s_depth, land, player, t_landA, t_landB, t_landC, t_player);
+	renderScene(xwing, enemyA, ball,  s_depth, land, t_landA, t_landB, t_landC, t_player, t_ball);
 	
 	//glCullFace(GL_BACK);
 
@@ -280,7 +233,7 @@ void render(Player xwing, LavaBall ball, const Geometry& land, const Model& play
 	s_phong.set("light.diffuse", 0.5f, 0.5f, 0.5f);
 	s_phong.set("light.specular", 1.0f, 1.0f, 1.0f);
 
-	s_phong.set("material.shininess", 32);
+	s_phong.set("material.shininess", 128);
 
 	s_phong.set("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -288,72 +241,48 @@ void render(Player xwing, LavaBall ball, const Geometry& land, const Model& play
 	glBindTexture(GL_TEXTURE_2D, fbo_texture);
 	s_phong.set("depthMap", 2);
 
-	renderScene(xwing, ball, s_phong, land, player, t_landA, t_landB, t_landC, t_player);
+	renderScene(xwing, enemyA, ball, s_phong, land, t_landA, t_landB, t_landC, t_player, t_ball);
 }
 
-/*void render(const Model& xwing, const Geometry& quad, const Geometry& cube, const Geometry& sphere,
-	const Shader& s_phong, const Shader& s_depth, const Shader& s_debug, const Shader& s_light,
-	const Texture& t_albedo, const Texture& t_specular, const uint32_t fbo, const uint32_t fbo_texture, const Texture& floor) {
-
-	//FIRST PASS
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glViewport(0, 0, k_shadow_width, k_shadow_height);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	const glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, k_shadow_near, k_shadow_far);
-	const glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	const glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-
-	s_depth.use();
-	s_depth.set("lightSpaceMatrix", lightSpaceMatrix);
-	//glCullFace(GL_FRONT);
-	renderScene(s_depth, xwing, quad, cube, sphere, t_albedo, t_specular, floor);
-	//glCullFace(GL_BACK);
-
-//SECOND PASS
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, Window::instance()->getWidth(), Window::instance()->getHeight());
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glm::mat4 view = camera.getViewMatrix();
-	glm::mat4 proj = glm::perspective(glm::radians(camera.getFOV()), static_cast<float>(Window::instance()->getWidth()) / Window::instance()->getHeight(), 0.1f, 100.0f);
-
-	s_phong.use();
-
-	s_phong.set("view", view);
-	s_phong.set("proj", proj);
-
-	s_phong.set("viewPos", camera.getPosition());
-
-	s_phong.set("light.position", lightPos);
-	s_phong.set("light.ambient", 0.1f, 0.1f, 0.1f);
-	s_phong.set("light.diffuse", 0.5f, 0.5f, 0.5f);
-	s_phong.set("light.specular", 1.0f, 1.0f, 1.0f);
-
-	s_phong.set("material.shininess", 32);
-
-	s_phong.set("lightSpaceMatrix", lightSpaceMatrix);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, fbo_texture);
-	s_phong.set("depthMap", 2);
-	
-	renderScene(s_phong, xwing, quad, cube, sphere, t_albedo, t_specular, floor);
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glViewport(0, 0, Window::instance()->getWidth(), Window::instance()->getHeight());
-	//glClear(GL_COLOR_BUFFER_BIT);
-	//glDisable(GL_DEPTH_TEST);
-
-	//s_debug.use();
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, fbo_texture);
-	//s_debug.set("depthMap", 0);
-
-	//quad.render();
+void updateWorld(float dt) {
+	for (int i = 0; i < std::size(sinEnemies); i++) {
+		sinEnemies[i].sinFalling(dt);
+	}
 }
-*/
+
+void initElements() {
+
+	//Enemies with sin movement
+	sinEnemies[0] = Enemy(glm::vec3(10.0f, 7.0f, 3.0f));
+	sinEnemies[1] = Enemy(glm::vec3(-10.0f, 7.0f, 3.0f));
+	sinEnemies[2] = Enemy(glm::vec3(13.0f, 19.0f, 3.0f));
+	sinEnemies[3] = Enemy(glm::vec3(-13.0f, 19.0f, 3.0f));
+	sinEnemies[4] = Enemy(glm::vec3(10.0f, 31.0f, 3.0f));
+	sinEnemies[5] = Enemy(glm::vec3(-10.0f, 31.0f, 3.0f));
+
+	sinEnemies[6] = Enemy(glm::vec3(7.0f, 107.0f, 3.0f));
+	sinEnemies[7] = Enemy(glm::vec3(-7.0f, 107.0f, 3.0f));
+	sinEnemies[8] = Enemy(glm::vec3(10.0f, 119.0f, 3.0f));
+	sinEnemies[9] = Enemy(glm::vec3(-10.0f, 119.0f, 3.0f));
+	sinEnemies[10] = Enemy(glm::vec3(7.0f, 131.0f, 3.0f));
+	sinEnemies[11] = Enemy(glm::vec3(-7.0f, 131.0f, 3.0f));
+
+	sinEnemies[12] = Enemy(glm::vec3(7.0f, 207.0f, 3.0f));
+	sinEnemies[13] = Enemy(glm::vec3(-7.0f, 207.0f, 3.0f));
+	sinEnemies[14] = Enemy(glm::vec3(10.0f, 219.0f, 3.0f));
+	sinEnemies[15] = Enemy(glm::vec3(-10.0f, 219.0f, 3.0f));
+	sinEnemies[16] = Enemy(glm::vec3(7.0f, 231.0f, 3.0f));
+	sinEnemies[17] = Enemy(glm::vec3(-7.0f, 231.0f, 3.0f));
+
+	//deathstars
+	deathstars[0] = Enemy(glm::vec3(15.0f, 50.0f, 5.0f));
+	deathstars[1] = Enemy(glm::vec3(20.0f, 90.0f, 5.0f));
+	deathstars[2] = Enemy(glm::vec3(-13.0f, 110.0f, 5.0f));
+	deathstars[3] = Enemy(glm::vec3(12.0f, 210.0f, 5.0f));
+	deathstars[4] = Enemy(glm::vec3(-25.0f, 60.0f, 5.0f));
+	deathstars[5] = Enemy(glm::vec3(30.0f, 300.0f, 5.0f));
+}
+
 int main(int, char* []) {
 	Window* window = Window::instance();
 	glClearColor(0.0f, 0.3f, 0.6f, 1.0f);
@@ -365,20 +294,22 @@ int main(int, char* []) {
 	const Shader s_light("../projects/FINAL/light.vs", "../projects/FINAL/light.fs");
 
 	// Textures
-	const Texture t_landA("../assets/textures/mustafar4.png", Texture::Format::RGB);
-	const Texture t_landB("../assets/textures/mustafar2.jpg", Texture::Format::RGB);
-	const Texture t_landC("../assets/textures/mustafar4.png", Texture::Format::RGB);
+	const Texture t_landA("../assets/textures/space.jpg", Texture::Format::RGB);
+	const Texture t_landB("../assets/textures/space2.jpg", Texture::Format::RGB);
+	const Texture t_landC("../assets/textures/space3.png", Texture::Format::RGB);
 	const Texture t_player("../assets/textures/xwing.jpg", Texture::Format::RGB);
+	const Texture t_ball("../assets/textures/deathstar.png", Texture::Format::RGB);
 	
 	//Objects
 	const Quad land(5.0f);
-	const Model player("../assets/models/xwing18/source/xwing_tiefighter_sketchfab.obj");
-
-	Player xwing = Player();
-	xwing.position = glm::vec3(0.0f, 0.0f, 3.0f);
-
-	LavaBall ball = LavaBall();
-	ball.position = glm::vec3(5.0f, 10.0f, 3.0f);
+	const Model enemyAMod("../assets/models/tie/TIE_Advanced_X2_MSDOS.obj");
+	//Deathstar
+	Sphere sphere(4.0f, 50, 50);
+	//Player
+	Player xwing = Player(glm::vec3(0.0f, 0.0f, 3.0f));
+	//Enemy
+	initElements();
+	
 	auto fbo = createFBO();
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -391,9 +322,9 @@ int main(int, char* []) {
 		const float deltaTime = currentFrame - lastFrame;
 		
 		lastFrame = currentFrame;
-		//handleInput(deltaTime);
 		handleInput(deltaTime, xwing);
-		render(xwing, ball, land, player, s_phong, s_depth, s_debug, s_light, t_landA, t_landB, t_landC, t_player, fbo.first, fbo.second);
+		updateWorld(deltaTime);
+		render(xwing, enemyAMod, sphere, land, s_phong, s_depth, s_debug, s_light, t_landA, t_landB, t_landC, t_player, t_ball, fbo.first, fbo.second);
 		window->frame();
 	}
 
@@ -402,49 +333,3 @@ int main(int, char* []) {
 
 	return 0;
 }
-
-/*int main(int, char* []) {
-	Window* window = Window::instance();
-
-	glClearColor(0.0f, 0.3f, 0.6f, 1.0f);
-
-	const Shader s_phong("../projects/FINAL/phong.vs", "../projects/FINAL/blinn.fs");
-	const Shader s_depth("../projects/FINAL/depth.vs", "../projects/FINAL/depth.fs");
-	const Shader s_debug("../projects/FINAL/debug.vs", "../projects/FINAL/debug.fs");
-	const Shader s_light("../projects/FINAL/light.vs", "../projects/FINAL/light.fs");
-	const Shader s_phong2("../projects/FINAL/simple.vs", "../projects/FINAL/simple.fs");
-	
-	const Texture t_albedo("../assets/textures/xwing.jpg", Texture::Format::RGB);
-	const Texture t_specular("../assets/textures/xwing.jpg", Texture::Format::RGB);
-	const Texture floor("../assets/textures/mustafar4.png", Texture::Format::RGB);
-	
-	const Model xwing("../assets/models/xwing18/source/xwing_tiefighter_sketchfab.obj");
-	const Quad quad(3.0f);
-	const Cube cube(1.0f);
-	const Sphere sphere(1.0f, 25, 25);
-	const Cube pj(2.0f);
-
-	auto fbo = createFBO();
-
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-	Input::instance()->setKeyPressedCallback(onKeyPress);
-	//Input::instance()->setMouseMoveCallback(onMouseMoved);
-	//Input::instance()->setScrollMoveCallback(onScrollMoved);
-
-	while (window->alive()) {
-		
-		const float currentFrame = glfwGetTime();
-		const float deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-		render(xwing, quad, cube, sphere, s_phong, s_depth, s_debug, s_light, t_albedo, t_specular, fbo.first, fbo.second, floor);
-		//render(xwing, s_phong);
-		window->frame();
-	}
-
-	glDeleteFramebuffers(1, &fbo.first);
-	glDeleteTextures(1, &fbo.second);
-
-	return 0;
-}*/

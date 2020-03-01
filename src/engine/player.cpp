@@ -3,6 +3,10 @@
 
 Player::~Player() {}
 
+Player::Player(glm::vec3 pos) {
+	position = pos;
+}
+
 void Player::damage() {
 	lifes--;
 }

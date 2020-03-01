@@ -9,13 +9,15 @@
 
 class LavaBall {
     public:
-		const Sphere sphere = Sphere(1.0f, 25, 25);
+		Geometry geometry;
 		const Texture texture = Texture("../assets/textures/xwing.jpg", Texture::Format::RGB);
 		glm::vec3 position;
 		float speed = 4.5f;
 
 		LavaBall() = default;
 		virtual ~LavaBall();
+		LavaBall(glm::vec3 pos);
+		LavaBall(glm::vec3 pos, Geometry geo);
 		void update(float dt);
 };
 #endif
