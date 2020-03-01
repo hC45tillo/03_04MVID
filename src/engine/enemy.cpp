@@ -55,3 +55,7 @@ void Enemy::patrolX(float dt) {
 		}
 	}
 }
+
+void Enemy::up(float dt) {
+	position.y += dt + speed;
+}

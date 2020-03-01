@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <vector>  //for std::vector
 #include "engine/camera.hpp"
 #include "engine/geometry/cube.hpp"
 #include "engine/input.hpp"
@@ -16,8 +16,8 @@
 #include <engine\lavaBall.hpp>
 #include <engine\enemy.hpp>
 
-Camera camera(glm::vec3(0.0f, 0.0f, 50.0f));
-glm::vec3 lightPos(1.2f, 3.0f, 50.0f);
+Camera camera(glm::vec3(0.0f, 0.0f, 60.0f));
+glm::vec3 lightPos(1.2f, 3.0f, 70.0f);
 
 glm::vec3 playerPos(0.0f, 0.0f, 3.0f);
 
@@ -29,15 +29,16 @@ const float k_shadow_far = 7.5f;
 float lastFrame = 0.0f;
 float lastX, lastY;
 bool firstMouse = true;
+int shootCount = 1;
 
 Enemy sinEnemies[18];
 Enemy deathstars[6];
+std::vector<Enemy> shoots;
 
-void handleInput(float dt, Player& xwing) {
+void handleInput(float dt, float lf, Player& xwing) {
 	Input* input = Input::instance();
 	
 	camera.handleKeyboard(Camera::Movement::Up, dt);
-
 	if (input->isKeyPressed(GLFW_KEY_W)) {
 		//camera.handleKeyboard(Camera::Movement::Up, dt);
 		//playerPos.y += dt * 3.5f;
@@ -57,6 +58,11 @@ void handleInput(float dt, Player& xwing) {
 	if (input->isKeyPressed(GLFW_KEY_D)) {
 		xwing.right(dt);
 		lightPos.x += dt * 4.5f;
+	}
+	if (input->isKeyPressed(GLFW_KEY_SPACE)) {
+		std::cout << "shoot" << std::endl;
+		shoots.push_back(Enemy(glm::vec3(xwing.position.x + 1.5, xwing.position.y + 0.5, xwing.position.z), 2.5f));
+		shoots.push_back(Enemy(glm::vec3(xwing.position.x - 1.5, xwing.position.y + 0.5, xwing.position.z), 2.5f));
 	}
 }
 
@@ -118,14 +124,14 @@ std::pair<uint32_t, uint32_t> createFBO() {
 	return std::make_pair(fbo, depthMap);
 }
 
-void renderScene(Player xwing,const Model& enemyAMod, const Geometry& ball, const Shader& shader, const Geometry& land, const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player, const Texture& t_ball) {
+void renderScene(Player xwing,const Model& enemyAMod, const Geometry& ball, const Shader& shader, const Geometry& land, const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player, const Texture& t_ball, const Texture& t_blast) {
 	t_landA.use(shader, "material.diffuse", 0);
 	t_landA.use(shader, "material.specular", 1);
 
 	//Begin Land Rendering
 	glm::mat4 model = glm::mat4(1.0);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+	model = glm::scale(model, glm::vec3(50.0f, 50.0f, 10.0f));
 	shader.set("model", model);
 	glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
 	shader.set("normalMat", normalMat);
@@ -133,7 +139,8 @@ void renderScene(Player xwing,const Model& enemyAMod, const Geometry& ball, cons
 
 	t_landB.use(shader, "material.diffuse", 0);
 	t_landB.use(shader, "material.specular", 1);
-	model = glm::translate(model, glm::vec3(0.0f, 5.0f, 0.0f));
+	model = glm::translate(model, glm::vec3(0.0f, 100.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(50.0f, 50.0f, 10.0f));
 	shader.set("model", model);
 	normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
 	shader.set("normalMat", normalMat);
@@ -141,7 +148,8 @@ void renderScene(Player xwing,const Model& enemyAMod, const Geometry& ball, cons
 
 	t_landC.use(shader, "material.diffuse", 0);
 	t_landC.use(shader, "material.specular", 1);
-	model = glm::translate(model, glm::vec3(0.0f, 5.0f, 0.0f));
+	model = glm::translate(model, glm::vec3(0.0f, 150.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(50.0f, 50.0f, 10.0f));
 	shader.set("model", model);
 	normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
 	shader.set("normalMat", normalMat);
@@ -161,6 +169,18 @@ void renderScene(Player xwing,const Model& enemyAMod, const Geometry& ball, cons
 		ball.render();
 	}
 	
+	t_blast.use(shader, "material.diffuse", 1);
+	t_blast.use(shader, "material.specular", 1);
+
+	for (int i = 0; i < std::size(shoots); i++) {
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, shoots[i].position);
+		model = glm::scale(model, glm::vec3(.08f, 1.0f, 3.0f));
+		shader.set("model", model);
+		normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
+		shader.set("normalMat", normalMat);
+		land.render();
+	}
 
 	//Player Rendering
 	t_player.use(shader, "material.diffuse", 0);
@@ -195,7 +215,7 @@ void renderScene(Player xwing,const Model& enemyAMod, const Geometry& ball, cons
 }
 
 void render(Player xwing, const Model& enemyA, const Geometry& ball, const Geometry& land, const Shader& s_phong, const Shader& s_depth, const Shader& s_debug, const Shader& s_light,
-	const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player, const Texture& t_ball, const uint32_t fbo, const uint32_t fbo_texture) {
+	const Texture& t_landA, const Texture& t_landB, const Texture& t_landC, const Texture& t_player, const Texture& t_ball, const Texture& t_blast, const uint32_t fbo, const uint32_t fbo_texture) {
 	//FIRST PASS
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, k_shadow_width, k_shadow_height);
@@ -209,7 +229,7 @@ void render(Player xwing, const Model& enemyA, const Geometry& ball, const Geome
 	s_depth.use();
 	s_depth.set("lightSpaceMatrix", lightSpaceMatrix);
 	//glCullFace(GL_FRONT);
-	renderScene(xwing, enemyA, ball,  s_depth, land, t_landA, t_landB, t_landC, t_player, t_ball);
+	renderScene(xwing, enemyA, ball,  s_depth, land, t_landA, t_landB, t_landC, t_player, t_ball, t_blast);
 	
 	//glCullFace(GL_BACK);
 
@@ -241,12 +261,15 @@ void render(Player xwing, const Model& enemyA, const Geometry& ball, const Geome
 	glBindTexture(GL_TEXTURE_2D, fbo_texture);
 	s_phong.set("depthMap", 2);
 
-	renderScene(xwing, enemyA, ball, s_phong, land, t_landA, t_landB, t_landC, t_player, t_ball);
+	renderScene(xwing, enemyA, ball, s_phong, land, t_landA, t_landB, t_landC, t_player, t_ball, t_blast);
 }
 
 void updateWorld(float dt) {
 	for (int i = 0; i < std::size(sinEnemies); i++) {
 		sinEnemies[i].sinFalling(dt);
+	}
+	for (int i = 0; i < std::size(shoots); i++) {
+		shoots[i].up(dt);
 	}
 }
 
@@ -296,9 +319,10 @@ int main(int, char* []) {
 	// Textures
 	const Texture t_landA("../assets/textures/space.jpg", Texture::Format::RGB);
 	const Texture t_landB("../assets/textures/space2.jpg", Texture::Format::RGB);
-	const Texture t_landC("../assets/textures/space3.png", Texture::Format::RGB);
+	const Texture t_landC("../assets/textures/space3.jpg", Texture::Format::RGB);
 	const Texture t_player("../assets/textures/xwing.jpg", Texture::Format::RGB);
 	const Texture t_ball("../assets/textures/deathstar.png", Texture::Format::RGB);
+	const Texture t_blast("../assets/textures/green3.jpg", Texture::Format::RGB);
 	
 	//Objects
 	const Quad land(5.0f);
@@ -322,9 +346,9 @@ int main(int, char* []) {
 		const float deltaTime = currentFrame - lastFrame;
 		
 		lastFrame = currentFrame;
-		handleInput(deltaTime, xwing);
+		handleInput(deltaTime, lastFrame, xwing);
 		updateWorld(deltaTime);
-		render(xwing, enemyAMod, sphere, land, s_phong, s_depth, s_debug, s_light, t_landA, t_landB, t_landC, t_player, t_ball, fbo.first, fbo.second);
+		render(xwing, enemyAMod, sphere, land, s_phong, s_depth, s_debug, s_light, t_landA, t_landB, t_landC, t_player, t_ball, t_blast, fbo.first, fbo.second);
 		window->frame();
 	}
 

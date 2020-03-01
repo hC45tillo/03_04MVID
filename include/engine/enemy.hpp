@@ -23,5 +23,6 @@ class Enemy {
 		void falling(float dt);
 		void sinFalling(float dt);
 		void patrolX(float dt);
+		void up(float dt);
 };
 #endif
