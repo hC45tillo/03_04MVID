@@ -28,6 +28,7 @@ class Texture {
 
         Texture(const char* path, Format format);
         Texture() = delete;
+
         ~Texture();
 
         Texture(const Texture&) = default;

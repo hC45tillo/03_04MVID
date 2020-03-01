@@ -16,7 +16,6 @@ public:
   std::vector<Mesh> meshes_;
   std::string directory_;
   bool gammaCorrection_;
-
   /*  Functions   */
   // constructor, expects a filepath to a 3D model.
   Model(std::string const &path, bool gamma = false);

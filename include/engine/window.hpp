@@ -35,8 +35,8 @@ class Window {
         Window& operator=(Window&&) = default;
 
         GLFWwindow* _window;
-        uint32_t _width = 800;
-        uint32_t _height = 600;
+        uint32_t _width = 1000;
+        uint32_t _height = 800;
 };
 
 #endif

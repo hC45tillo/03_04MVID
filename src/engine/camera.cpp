@@ -57,6 +57,9 @@ void Camera::handleKeyboard(Movement direction, float dt) {
     switch (direction) {
         case Movement::Forward: _position += _front * velocity; break;
         case Movement::Backward: _position -= _front * velocity; break;
+	// Added up and down for camera navigation
+		case Movement::Up: _position += _up * velocity; break;
+		case Movement::Down: _position -= _up * velocity; break;
         case Movement::Left: _position -= _right * velocity; break;
         case Movement::Right: _position += _right * velocity; break;
         default:;
