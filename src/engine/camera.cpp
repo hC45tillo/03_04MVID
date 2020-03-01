@@ -1,6 +1,7 @@
 #include "engine/camera.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <functional>
 
 Camera::Camera(const glm::vec3& position, const glm::vec3& up, float yaw, float pitch)
  : _position(position), _worldUp(up), _yaw(yaw), _pitch(pitch), _fov(k_FOV) {
@@ -12,9 +13,23 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
     updateCameraVectors();
 }
 
-
 glm::mat4 Camera::getViewMatrix() const {
-    return glm::lookAt(_position, _position + _front, _up);
+	return glm::lookAt(_position, _position + _front, _up);
+}
+
+glm::mat4 Camera::personalGetViewMatrix() const {
+	glm::vec3 zaxis = glm::normalize(_front );
+	glm::vec3 xaxis = glm::normalize(glm::cross(zaxis, _up));
+	glm::vec3 yaxis = cross(xaxis, zaxis);
+
+	glm::mat4 viewMatrix = {
+	  glm::vec4(xaxis.x, xaxis.y, xaxis.z, -glm::dot(xaxis, _position)),
+	  glm::vec4(yaxis.x, yaxis.y, yaxis.z, -glm::dot(yaxis, _position)),
+	  glm::vec4(zaxis.x, zaxis.y, zaxis.z, -glm::dot(zaxis, _position)),
+	  glm::vec4(_up, 1)
+	};
+
+	return viewMatrix;
 }
 
 float Camera::getFOV() const {
@@ -46,6 +61,19 @@ void Camera::handleKeyboard(Movement direction, float dt) {
         case Movement::Right: _position += _right * velocity; break;
         default:;
     }
+}
+
+void Camera::handleKeyboardFPS(Movement direction, float dt) {
+	const float velocity = k_Speed * dt;
+
+	switch (direction) {
+	case Movement::Forward:
+		_position.z += _front.z * velocity; break;
+	case Movement::Backward: _position.z -= _front.z * velocity; break;
+	case Movement::Left: _position -= _right * velocity; break;
+	case Movement::Right: _position += _right * velocity; break;
+	default:;
+	}
 }
 
 void Camera::handleMouseMovement(float xoffset, float yoffset, bool constrainPitch) {
